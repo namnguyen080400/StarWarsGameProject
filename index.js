@@ -20,7 +20,7 @@ var heroImage = new Image();
 heroImage.onload = function () {
     heroReady = true;
 };
-heroImage.src = "images/hero.png";
+heroImage.src = "images/x-wing.png";
 
 // Monster image
 var monsterReady = false;
@@ -30,10 +30,49 @@ monsterImage.onload = function () {
 };
 monsterImage.src = "images/monster.png";
 
+// Rebel crusier image
+var crusierReady = false;
+var crusierImage = new Image();
+crusierImage.onload = function () {
+    crusierReady = true;
+};
+crusierImage.src = "images/rebelCrusierTransparent.png";
+var CRUSIER_WIDTH = 150;
+var CRUSIER_HEIGHT = 72;
 // done with load image ================================================================
 
 
 // define objects and variables we need =================================================
+
+// lots of variables to keep track of sprite geometry
+//  I have 8 rows and 3 cols in my space ship sprite sheet
+var rows = 6;
+var cols = 5;
+
+//second row for the right movement (counting the index from 0)
+var trackRight = 5;
+//third row for the left movement (counting the index from 0)
+var trackLeft = 2;
+var trackUp = 4;   // not using up and down in this version, see next version
+var trackDown = 0;
+
+var spriteWidth = 510; // also  spriteWidth/cols; 511
+var spriteHeight = 505;  // also spriteHeight/rows; 
+var width = spriteWidth / cols; 
+var height = spriteHeight / rows; 
+
+var curXFrame = 0; // start on left side
+var frameCount = 1;  // 5 frames per row
+//x and y coordinates of the overall sprite image to get the single frame  we want
+var srcX = 0;  // our image has no borders or other stuff
+var srcY = 0;
+
+//Assuming that at start the character will move right side 
+var left = false;
+var right = false;
+var up = false;
+var down = false;
+
 
 // Game objects
 var hero = {
@@ -47,6 +86,13 @@ var monster = {
     y: 0
 };
 var monstersCaught = 0;
+var crusier = {
+    
+    x: canvas.width - 800,
+    y: 200 
+};
+
+var reachDestination = 0;
 
 // end define objects and variables we need ==============================================
 
@@ -77,33 +123,92 @@ addEventListener("keyup", function (e) {
 // Update game objects
 var update = function (modifier) {
 
-    // adjust based on keys
-    if (38 in keysDown && hero.y > 32 + 0) { //  holding up key
-        hero.y -= hero.speed * modifier;
-    }
-    if (40 in keysDown && hero.y < canvas.height - (64 + 0)) { //  holding down key
-        hero.y += hero.speed * modifier;
-    }
-    if (37 in keysDown && hero.x > (32 + 0)) { // holding left key
+    // then decide if they are moving left or right and set those
+    if (37 in keysDown && hero.x > (32 + 4)) { // holding left key
         hero.x -= hero.speed * modifier;
+        left = true;   // for animation
+        right = false; // for animation
+        up = false;
+        down = false;
     }
-    if (39 in keysDown && hero.x < canvas.width - (64 + 0)) { // holding right key
+
+    else if (38 in keysDown && hero.x < canvas.width - (96 + 2)) { // holding up key
+        hero.y -= hero.speed * modifier;
+        left = false;   // for animation
+        right = false; // for animation
+        up = true;
+        down = false;
+    }
+
+    //if (39 in keysDown && hero.x < canvas.width - (64 + 6)) { // holding right key
+    else if (39 in keysDown && hero.x < canvas.width - (96 + 2)) { // holding right key
         hero.x += hero.speed * modifier;
+        left = false;   // for animation
+        right = true; // for animation
+        up = false;
+        down = false;
     }
-    
+
+    else if (40 in keysDown && hero.x < canvas.width - (96 + 2)) { // holding down key
+        hero.y += hero.speed * modifier;
+        left = false;   // for animation
+        right = false; // for animation
+        up = false;
+        down = true;
+    }
+    else {
+        left = false;   // for animation
+        right = false; // for animation
+        up = false;
+        down = false;
+    }
 
     // Are they touching?
     if (
         hero.x <= (monster.x + 32)
-        && monster.x <= (hero.x + 32)
+        && monster.x <= (hero.x + width)
         && hero.y <= (monster.y + 32)
-        && monster.y <= (hero.y + 32)
+        && monster.y <= (hero.y + height)
     ) {
         ++monstersCaught;       // keep track of our “score”
         reset();       // start a new cycle
     }
 
+    if (
+        hero.x <= (crusier.x + CRUSIER_WIDTH)
+        && crusier.x <= (hero.x + width)
+        && hero.y <= (crusier.y + CRUSIER_HEIGHT)
+        && crusier.y <= (hero.y + height)
+    ) {
+        ++reachDestination;       // keep track of our “score”
+        reset();       // start a new cycle
+    }
 
+    curXFrame = ++curXFrame % frameCount; 	//Updating the sprite frame index 
+    // it will count 0,1,2,0,1,2,0, etc
+    srcX = curXFrame * width;   	//Calculating the x coordinate for spritesheet 
+    //if left is true,  pick Y dim of the correct row
+    if (left) {
+        //calculate srcY 
+        srcY = trackLeft * height;
+    }
+
+    //if the right is true,   pick Y dim of the correct row
+    if (right) {
+        //calculating y coordinate for spritesheet
+        srcY = trackRight * height;
+    }
+
+    if (up) {
+        //calculate srcY 
+        srcY = trackUp * height;
+    }
+
+    //if the right is true,   pick Y dim of the correct row
+    if (down) {
+        //calculating y coordinate for spritesheet
+        srcY = trackDown * height;
+    }
 
 };
 
@@ -115,11 +220,16 @@ var render = function () {
         ctx.drawImage(bgImage, 0, 0);
     }
     if (heroReady) {
-        ctx.drawImage(heroImage, hero.x, hero.y);
+        //ctx.drawImage(heroImage, hero.x, hero.y);
+         ctx.drawImage(heroImage, srcX, srcY, width, height, hero.x, hero.y, width, height);
     }
 
     if (monsterReady) {
         ctx.drawImage(monsterImage, monster.x, monster.y);
+    }
+
+    if (crusierReady) {
+        ctx.drawImage(crusierImage, crusier.x, crusier.y);
     }
 
     console.log(monstersCaught);
