@@ -4,9 +4,10 @@ var ctx = canvas.getContext("2d");
 canvas.width = 1920;
 canvas.height = 1080;
 document.body.appendChild(canvas);
+var startButton;
 var restartButton;
 
-
+var gameStart = false;
 var gameOver = false;
 
 // Background image
@@ -89,6 +90,8 @@ downMissileImage.onload = function () {
     downMissileReady = true;
     restartButton = document.getElementById("restartButton");
     restartButton.addEventListener('click', reset);
+    startButton = document.getElementById("startButton");
+    startButton.addEventListener('click', startGame);
 }
 MISSILE_SLEEP_TIME = 10;
 
@@ -371,6 +374,9 @@ addEventListener("keyup", function (e) {
 
 // Update game objects
 var update = function (modifier) {
+    if (!gameStart) {
+        return;
+    }
     if (!gameOver) {
         // then decide if they are moving left or right and set those
         if (37 in keysDown && hero.x > (32 + 4)) { // holding left key
@@ -676,6 +682,10 @@ var reset = function () {
     gameOver = false;
 };
 
+var startGame = function () {
+    gameStart = true;
+    //reset();
+}
 
 var checkHit = function(missile, target) {
     if (
