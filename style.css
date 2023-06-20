@@ -1,0 +1,15 @@
+h1 {
+    /* display: block; */
+    /* margin: 20px auto; */
+    padding:10px 10px;
+    font-size: 50px;
+    /* background-color: #0a0719; */
+    color: rgb(205, 205, 208);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    color: red;
+}
+
+
