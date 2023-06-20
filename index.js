@@ -266,7 +266,7 @@ var reachDestination = 0;
 var RIGHT_MISSILE_START_X = 10;
 //var RIGHT_MISSILE_START_Y = 200;
 var RIGHT_MISSILE_START_Y = (canvas.height / 2) - 16
-var RIGHT_MISSILE_SPEED = 10;
+var RIGHT_MISSILE_SPEED = 5;
 var RIGHT_MISSILE_NAME = "Right missile";
 var rightMissile = {
     missileID: RIGHT_MISSILE_NAME,
@@ -286,7 +286,7 @@ var rightMissileHit = 0;
 // left missile
 var LEFT_MISSILE_START_X = canvas.width - 10;
 var LEFT_MISSILE_START_Y = 200;
-var LEFT_MISSILE_SPEED = 10;
+var LEFT_MISSILE_SPEED = 5;
 var LEFT_MISSILE_NAME = "Left missile";
 
 var leftMissile = {
